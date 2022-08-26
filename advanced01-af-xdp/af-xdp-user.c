@@ -478,9 +478,9 @@ int main(int argc, char **argv) {
     sigaction(SIGINT, &act, 0); // 注册SIGINT信号的处理函数
 
     /* Allocate memory for NUM_FRAMES of the default XDP frame size */
-    packet_buffer_size = NUM_FRAMES * FRAME_SIZE; /* FRAME_SIZE应该UMEM规定的数据帧的默认大小，
-												   * NUM_FRAMES就是我们设置的UMEM中默认数据帧数量了 */
-    err = posix_memalign(&packet_buffer, /* 分配packet_buffer_size的内存，并按pagesize对齐 */
+    packet_buffer_size = NUM_FRAMES * FRAME_SIZE; /* FRAME_SIZE是UMEM中存储的单个数据帧的大小，
+												   * NUM_FRAMES是UMEM中默认数据帧数量 */
+    err = posix_memalign(&packet_buffer, /* 分配packet_buffer_size大小的内存，并按pagesize对齐 */
                          getpagesize(),
                          packet_buffer_size);
     if (err) {
@@ -524,7 +524,7 @@ int main(int argc, char **argv) {
 
     err = xsk_socket__create(&xsk_info->xsk, cfg.ifname,
                              cfg.xsk_if_queue, umem_info->umem, &xsk_info->rx,
-                             &xsk_info->tx, &xsk_cfg);
+                             &xsk_info->tx, &xsk_cfg); // 创建XSK并与刚创建的UMEM绑定
     if (err) {
         fprintf(stderr, "Error: Can't create xsk socket: \"%s\"\n", strerror(-err));
         return 1;
